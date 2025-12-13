@@ -1,0 +1,1 @@
+Coursework on Patterns mobile part
