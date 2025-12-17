@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_cursach/data/models/trainer.dart';
@@ -80,9 +81,16 @@ class _TrainerDetailsPageState extends State<TrainerDetailsPage> {
         Navigator.pop(context);
       }
     } catch (e) {
+      String message = 'Помилка бронювання: $e';
+      if (e is DioException) {
+        final data = e.response?.data;
+        if (data is Map && data['detail'] != null && data['detail'].toString().isNotEmpty) {
+          message = data['detail'].toString();
+        }
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Помилка бронювання: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
       }
     } finally {
