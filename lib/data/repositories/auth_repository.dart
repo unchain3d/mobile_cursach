@@ -2,11 +2,9 @@ import 'package:dio/dio.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:mobile_cursach/data/services/auth_service.dart';
 import 'package:mobile_cursach/data/services/local_storage.dart';
-import 'package:mobile_cursach/data/services/profile_service.dart';
 
 class AuthRepository {
   final _api = AuthService();
-  final _profileApi = ProfileService();
 
   Future<String> login({
     required String username,
@@ -17,29 +15,25 @@ class AuthRepository {
       final res = await _api.login(username: username, password: password);
 
       final token = res.data?['access_token']?.toString();
+      final role = res.data?['role']?.toString();
+
       if (token == null || token.isEmpty) {
         throw Exception('Не вдалося отримати токен доступу.');
       }
 
       final payload = Jwt.parseJwt(token);
-
       final rawId = payload['id'];
       final userId = rawId is int ? rawId : int.tryParse(rawId.toString());
-      if (userId == null) {
-        throw Exception('Помилка: не вдалося отримати userId з токена.');
+      if (userId != null) {
+        await LocalStorage.saveUserId(userId);
       }
 
-      await LocalStorage.saveUserId(userId);
-
-      final profile = await _profileApi.getProfile();
-      final rawAdmin = profile['is_admin'];
-      final isAdmin = rawAdmin == true || rawAdmin == 1 || rawAdmin == '1';
-
+      final isAdmin = role == 'admin';
       await LocalStorage.saveIsAdmin(isAdmin);
 
-      if (rememberMe) {
-        await LocalStorage.saveToken(token);
-      }
+      await LocalStorage.saveToken(token);
+
+      await LocalStorage.saveRememberMe(rememberMe);
 
       return token;
     } on DioException catch (e) {
@@ -48,13 +42,11 @@ class AuthRepository {
 
       if (code == 401) throw Exception('Невірний логін або пароль.');
       if (code == 400 && detail != null) throw Exception(detail);
-      if (code == 500) throw Exception('Помилка сервера. Спробуйте пізніше.');
+      if (code == 500) throw Exception('Помилка сервера.');
 
-      throw Exception(
-        detail ?? 'Помилка мережі. Перевірте інтернет і спробуйте ще.',
-      );
-    } catch (_) {
-      throw Exception('Сталася невідома помилка. Спробуйте ще раз.');
+      throw Exception(detail ?? 'Помилка мережі.');
+    } catch (e) {
+      throw Exception('Сталася помилка: $e');
     }
   }
 
@@ -66,17 +58,10 @@ class AuthRepository {
     try {
       await _api.register(username: username, email: email, password: password);
     } on DioException catch (e) {
-      final code = e.response?.statusCode;
       final detail = _extractDetail(e);
-
-      if (code == 400 && detail != null) throw Exception(detail);
-      if (code == 500) throw Exception('Помилка сервера. Спробуйте пізніше.');
-
-      throw Exception(
-        detail ?? 'Помилка мережі. Перевірте інтернет і спробуйте ще.',
-      );
+      throw Exception(detail ?? 'Помилка мережі.');
     } catch (_) {
-      throw Exception('Сталася невідома помилка. Спробуйте ще раз.');
+      throw Exception('Помилка реєстрації.');
     }
   }
 

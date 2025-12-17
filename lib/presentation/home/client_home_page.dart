@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_cursach/data/models/trainer.dart';
 import 'package:mobile_cursach/data/repositories/client_repository.dart';
+import 'package:mobile_cursach/presentation/home/schedule_page.dart';
 import 'package:mobile_cursach/presentation/home/subscriptions_page.dart';
 import 'package:mobile_cursach/presentation/home/trainer_details_page.dart';
-import 'package:mobile_cursach/presentation/home/schedule_page.dart';
 import 'package:mobile_cursach/presentation/profile/client_profile_page.dart';
 
 import '../../core/theme.dart';
@@ -29,9 +29,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: _pages[_currentIndex],
-      ),
+      body: SafeArea(child: _pages[_currentIndex]),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: AppColors.surface,
         selectedItemColor: AppColors.primary,
@@ -42,7 +40,10 @@ class _ClientHomePageState extends State<ClientHomePage> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today_outlined), label: ''),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today_outlined),
+            label: '',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: ''),
         ],
       ),
@@ -71,7 +72,11 @@ class _HomeContentState extends State<HomeContent> {
   Future<void> _loadData() async {
     try {
       final list = await _repo.getTrainers();
-      if (mounted) setState(() { trainers = list; isLoading = false; });
+      if (mounted)
+        setState(() {
+          trainers = list;
+          isLoading = false;
+        });
     } catch (e) {
       if (mounted) setState(() => isLoading = false);
     }
@@ -85,10 +90,20 @@ class _HomeContentState extends State<HomeContent> {
           padding: const EdgeInsets.symmetric(vertical: 20),
           child: RichText(
             text: const TextSpan(
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, fontFamily: 'Arial'),
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Arial',
+              ),
               children: [
-                TextSpan(text: 'Sport', style: TextStyle(color: Colors.white)),
-                TextSpan(text: 'Life', style: TextStyle(color: AppColors.primary)),
+                TextSpan(
+                  text: 'Sport',
+                  style: TextStyle(color: Colors.white),
+                ),
+                TextSpan(
+                  text: 'Life',
+                  style: TextStyle(color: AppColors.primary),
+                ),
               ],
             ),
           ),
@@ -96,21 +111,26 @@ class _HomeContentState extends State<HomeContent> {
 
         Expanded(
           child: isLoading
-              ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+              ? const Center(
+                  child: CircularProgressIndicator(color: AppColors.primary),
+                )
               : ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: trainers.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 20),
-            itemBuilder: (ctx, i) {
-              return TrainerCard(
-                trainer: trainers[i],
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => TrainerDetailsPage(trainer: trainers[i])),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: trainers.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 20),
+                  itemBuilder: (ctx, i) {
+                    return TrainerCard(
+                      trainer: trainers[i],
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              TrainerDetailsPage(trainer: trainers[i]),
+                        ),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
         ),
       ],
     );
@@ -132,7 +152,11 @@ class TrainerCard extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 8.0, left: 4),
           child: Text(
             trainer.specialization,
-            style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
 
@@ -150,11 +174,17 @@ class TrainerCard extends StatelessWidget {
                   width: 100,
                   height: 100,
                   child: Image.network(
-                    trainer.photoUrl.isNotEmpty ? trainer.photoUrl : 'https://picsum.photos/200?random=${trainer.id}',
+                    trainer.photoUrl.isNotEmpty
+                        ? trainer.photoUrl
+                        : 'https://picsum.photos/200?random=${trainer.id}',
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       color: Colors.grey[800],
-                      child: const Icon(Icons.person, color: Colors.white, size: 40),
+                      child: const Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 40,
+                      ),
                     ),
                   ),
                 ),
@@ -168,7 +198,11 @@ class TrainerCard extends StatelessWidget {
                   children: [
                     Text(
                       trainer.name,
-                      style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     _buildInfoRow("Стаж:", "${trainer.experienceYears} років"),
@@ -182,15 +216,25 @@ class TrainerCard extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: onTap,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary.withValues(alpha: 0.8),
+                          backgroundColor: AppColors.primary.withValues(
+                            alpha: 0.8,
+                          ),
                           foregroundColor: Colors.black,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           elevation: 0,
                         ),
-                        child: const Text("Детальніше", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                        child: const Text(
+                          "Детальніше",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -204,7 +248,10 @@ class TrainerCard extends StatelessWidget {
   Widget _buildInfoRow(String label, String value) {
     return Row(
       children: [
-        Text("$label  ", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+        Text(
+          "$label  ",
+          style: const TextStyle(color: Colors.grey, fontSize: 12),
+        ),
         Text(value, style: const TextStyle(color: Colors.white, fontSize: 12)),
       ],
     );
