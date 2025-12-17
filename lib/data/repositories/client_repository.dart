@@ -18,6 +18,7 @@ class ClientRepository {
       return await _service.getTrainerById(id);
     } catch (e) {
       return null;
+
     }
   }
 

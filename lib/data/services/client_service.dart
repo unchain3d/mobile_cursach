@@ -118,24 +118,10 @@ class ClientService {
 
   Future<List<dynamic>> getMySessions() async {
     try {
-      try {
-        final response = await _dio.get('/client/sessions');
-        if (response.data is List) {
-          return response.data as List<dynamic>;
-        }
-      } catch (e) {
-        debugPrint('⚠️ /client/sessions не існує, спробуємо інший варіант');
+      final response = await _dio.get('/client/sessions');
+      if (response.data is List) {
+        return response.data as List<dynamic>;
       }
-
-      try {
-        final response = await _dio.get('/client/my-sessions');
-        if (response.data is List) {
-          return response.data as List<dynamic>;
-        }
-      } catch (e) {
-        debugPrint('⚠️ /client/my-sessions не існує');
-      }
-
       return [];
     } catch (e) {
       debugPrint('❌ ClientService.getMySessions error: $e');
