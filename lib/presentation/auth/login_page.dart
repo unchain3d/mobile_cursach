@@ -25,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
     _checkAuth();
   }
 
-  // Перевірка, чи юзер вже залогінений
   Future<void> _checkAuth() async {
     final token = await LocalStorage.getToken();
     if (token != null && token.isNotEmpty) {
@@ -34,18 +33,14 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  // Логіка перенаправлення (Адмін vs Клієнт)
   Future<void> _navigateBasedOnRole() async {
     final isAdmin = await LocalStorage.getIsAdmin();
     if (!mounted) return;
 
     if (isAdmin) {
-      // Якщо у тебе ще немає роута adminHome, поки кидай на home
-      // Але в майбутньому тут буде: Navigator.pushReplacementNamed(context, '/admin_home');
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      Navigator.pushReplacementNamed(context, AppRoutes.adminHome);
     } else {
-      // Тут буде клієнтська сторінка
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      Navigator.pushReplacementNamed(context, AppRoutes.clientHome);
     }
   }
 
@@ -60,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (!mounted) return;
-      _navigateBasedOnRole(); // Викликаємо перевірку ролі після успішного входу
+      _navigateBasedOnRole();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -77,7 +72,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold бере колір background з теми (темний)
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -119,7 +113,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 48),
 
-                // --- INPUTS ---
                 _inputField(
                   controller: emailController,
                   hint: 'Username',
@@ -139,7 +132,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 16),
 
-                // --- REMEMBER ME ---
                 Row(
                   children: [
                     SizedBox(
@@ -186,7 +178,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 32),
 
-                // --- DIVIDER ---
                 Row(
                   children: [
                     Expanded(child: Divider(color: Colors.grey[800])),
@@ -202,7 +193,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 32),
 
-                // --- SIGN UP LINK ---
                 GestureDetector(
                   onTap: () => Navigator.pushNamed(context, AppRoutes.register),
                   child: RichText(
@@ -237,8 +227,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  // --- HELPER WIDGET ---
-  // Ми використовуємо стилі з theme, тому тут мінімум коду
   Widget _inputField({
     required TextEditingController controller,
     required String hint,
@@ -249,17 +237,15 @@ class _LoginPageState extends State<LoginPage> {
     return TextField(
       controller: controller,
       obscureText: obscure,
-      style: const TextStyle(color: Colors.white), // Білий текст вводу
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         hintText: hint,
-        // Іконка справа
         suffixIcon: icon == null
             ? null
             : GestureDetector(
                 onTap: onIconTap,
-                child: Icon(icon, color: Colors.grey[500]), // Сіра іконка
+                child: Icon(icon, color: Colors.grey[500]),
               ),
-        // Prefix Icon (додав для краси)
         prefixIcon: icon == Icons.person_outline
             ? Icon(Icons.email_outlined, color: Colors.grey[500])
             : Icon(Icons.lock_outline, color: Colors.grey[500]),
